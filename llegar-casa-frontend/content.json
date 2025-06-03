@@ -1,0 +1,93 @@
+{
+	"project": {
+		"title": "Llegar a Casa",
+		"subtitle": "Tu seguridad comienza aquí.",
+		"description": "Verifica la legalidad de un vehículo de transporte antes de subirte. Gratis, rápido y confiable.",
+		"image": "/images/hero-image.avif",
+		"button": "Consultar una placa"
+	},
+	"whyUse": {
+		"title": "¿Por qué usar Llegar a Casa?",
+		"items": [
+			{
+				"title": "Seguridad",
+				"icon": "security",
+				"description": "Evita subirte a vehículos con antecedentes legales o reportes de robo."
+			},
+			{
+				"title": "Rapidez",
+				"icon": "speed",
+				"description": "Consulta la información en segundos, sin necesidad de largas búsquedas."
+			},
+			{
+				"title": "Comunidad",
+				"icon": "community",
+				"description": "Ayuda a construir una comunidad más segura. Comparte esta página con tus amigos y familiares."
+			}
+		],
+		"testimonial": {
+			"quote": "Hace algunos años fui víctima de un secuestro exprés al utilizar una aplicación de transporte. Herramientas como Llegar a Casa ofrecen una capa adicional de seguridad que puede marcar la diferencia al momento de llegar a nuestros hogares sanos y salvos.",
+			"author": "Pablo B."
+		}
+	},
+	"consultation": {
+		"title": "Consulta una placa",
+		"description": "Ingresa el número de placa para consultar si el vehículo tiene reportes legales o ha sido robado.",
+		"button": "Consultar",
+		"countries": [
+			{
+				"name": "Ecuador",
+				"code": "EC",
+				"placeholder": "ABC-0123",
+				"regex": "^[A-Z]{3}-[0-9]{4}$",
+				"active": true
+			},
+			{
+				"name": "Perú",
+				"code": "PE",
+				"placeholder": "A1A-123",
+				"regex": "^[A-Z]{1}[0-9]{1}[A-Z]{1}-[0-9]{3}$",
+				"active": false
+			}
+		]
+	},
+	"faq": {
+		"title": "Preguntas frecuentes",
+		"items": [
+			{
+				"question": "¿De dónde provienen los datos?",
+				"answer": "Todos los datos provienen de APIs públicas de entidades gubernamentales del Ecuador, como la ANT y la Policía Nacional."
+			},
+			{
+				"question": "¿Con qué frecuencia se actualiza la información?",
+				"answer": "La información se actualiza diariamente para ofrecer datos confiables y recientes."
+			},
+			{
+				"question": "¿Puedo confiar plenamente en la información?",
+				"answer": "Si bien hacemos todo lo posible para garantizar exactitud, siempre recomendamos contrastar la información con fuentes oficiales en caso de duda."
+			},
+			{
+				"question": "¿Qué debo hacer si encuentro un vehículo con problemas legales?",
+				"answer": "Te recomendamos no utilizar el vehículo y reportar la situación a las autoridades competentes de inmediato."
+			}
+		]
+	},
+	"footer": {
+		"subtitle": "Una herramienta para verificar la seguridad de vehículos de transporte público.",
+		"socialLinks": [
+			{
+				"type": "linkedin",
+				"url": "https://www.linkedin.com/in/pablobeltran1405/"
+			},
+			{
+				"type": "github",
+				"url": "https://github.com/Ilchampo"
+			},
+			{
+				"type": "website",
+				"url": "https://www.pablobeltran.site/"
+			}
+		],
+		"disclaimer": "Llegar a Casa es una iniciativa independiente que utiliza información disponible públicamente. Esta herramienta no representa ni está afiliada a ninguna entidad gubernamental del Ecuador."
+	}
+}
