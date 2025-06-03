@@ -10,9 +10,9 @@ export class ComplaintsController {
 	}
 
 	async getComplaints(req: Request, res: Response) {
-		const { licensePlate, name } = req.query;
+		const { licensePlate } = req.query;
 
-		const response = await this.complaintsService.getComplaints(licensePlate as string, name as string);
+		const response = await this.complaintsService.getComplaints(licensePlate as string);
 
 		res.status(response.status).json(response);
 	}

@@ -6,7 +6,6 @@ import { ApiCaller } from '../lib/utils/apiCaller';
 import { parseHtmlVehice } from '../lib/utils/htmlParser';
 
 import FormData from 'form-data';
-
 import config from '../config';
 
 export class VehicleService {
@@ -20,7 +19,7 @@ export class VehicleService {
 		return ResponseHandler.handleApiCall<Vehicle>(async () => {
 			const form = new FormData();
 
-			form.append('placa_vehiculo', licensePlate);
+			form.append('placa_vehiculo', licensePlate.replace('-', ''));
 
 			const response = await this.apiCaller.post<string, FormData>('/', form, {
 				headers: {

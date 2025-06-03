@@ -13,12 +13,11 @@ export class ComplaintsService {
 		this.apiCaller = new ApiCaller(config.services.complaints.baseURL);
 	}
 
-	async getComplaints(licensePlate: string, name: string): Promise<Response<ComplaintResponse>> {
+	async getComplaints(licensePlate: string): Promise<Response<ComplaintResponse>> {
 		return ResponseHandler.handleApiCall<ComplaintResponse>(async () => {
 			const response = await this.apiCaller.get<ComplaintData>('/scraper/complaints', {
 				params: {
-					license_plate: licensePlate,
-					driver_name: name,
+					license_plate: licensePlate.replace('-', ''),
 				},
 			});
 
@@ -26,7 +25,6 @@ export class ComplaintsService {
 				location: response.data.lugar,
 				date: response.data.fecha,
 				offense: response.data.delito,
-				nameMatchFound: response.data.name_match_found,
 			};
 
 			return {

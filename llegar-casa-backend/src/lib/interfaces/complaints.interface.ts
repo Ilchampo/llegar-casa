@@ -1,19 +1,15 @@
 export interface ComplaintData {
-	crime_report_number: string;
-	lugar: string;
-	fecha: string;
-	delito: string;
-	procesados: string[];
-	name_match_found: boolean;
-	search_successful: boolean;
-	error_message: string;
 	searched_plate: string;
-	searched_driver: string;
+	search_successful: boolean;
+	crime_report_number: string | null;
+	lugar: string | null;
+	fecha: string | null;
+	delito: string | null;
+	error_message: string | null;
 }
 
 export interface ComplaintResponse {
-	location: string;
-	date: string;
-	offense: string;
-	nameMatchFound: boolean;
+	location: string | null;
+	date: string | null;
+	offense: string | null;
 }

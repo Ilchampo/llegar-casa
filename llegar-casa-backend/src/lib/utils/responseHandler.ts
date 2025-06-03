@@ -41,12 +41,10 @@ export class ResponseHandler {
 	): Response<T> {
 		const { data, status } = apiResponse;
 
-		// Handle success responses (2xx and 4xx as per your requirement)
 		if (status >= 200 && status < 500) {
 			return this.success(data, successMessage, status);
 		}
 
-		// Handle server errors (5xx)
 		return this.error<T>('External API server error', status, 'External service unavailable');
 	}
 
@@ -77,9 +75,11 @@ export class ResponseHandler {
 	): Promise<Response<T>> {
 		try {
 			const result = await operation();
+
 			return this.handleDbResult(result, successMessage);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Database operation failed';
+
 			return this.error<T>(errorMessage, 500, 'Database error');
 		}
 	}
@@ -95,10 +95,12 @@ export class ResponseHandler {
 	): Promise<Response<T>> {
 		try {
 			const apiResponse = await apiCall();
+
 			return this.handleApiResponse(apiResponse, successMessage);
 		} catch (error) {
-			// Handle network errors, timeouts, etc.
+			console.error(error);
 			const errorMessage = error instanceof Error ? error.message : 'API request failed';
+
 			return this.error<T>(errorMessage, 503, 'Service unavailable');
 		}
 	}
