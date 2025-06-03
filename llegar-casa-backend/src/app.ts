@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 
 import { apiRateLimit, dataFetchRateLimit, basicRateLimit } from './config/rateLimit';
+import { getCacheStats } from './lib/utils/simpleCache';
 
 import complaintsRoutes from './routes/complaints.routes';
 import vehiclesRoutes from './routes/vehicles.routes';
@@ -30,6 +31,7 @@ app.get('/health', (req, res) => {
 			environment: config.app.env,
 			timestamp: new Date().toISOString(),
 			uptime: process.uptime(),
+			cache: getCacheStats(),
 		},
 	});
 });
