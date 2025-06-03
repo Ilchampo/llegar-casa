@@ -1,9 +1,11 @@
 import express from 'express';
+import helmet from 'helmet';
 import cors from 'cors';
 
 import complaintsRoutes from './routes/complaints.routes';
 import vehiclesRoutes from './routes/vehicles.routes';
-import corsOptions from './cors';
+import helmetOptions from './config/helmet';
+import corsOptions from './config/cors';
 
 import config from './config';
 
@@ -11,6 +13,7 @@ const app = express();
 
 app.set('port', config.app.port);
 
+app.use(helmet(helmetOptions));
 app.use(cors(corsOptions));
 
 app.use(express.urlencoded({ extended: true }));

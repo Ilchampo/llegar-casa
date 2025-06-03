@@ -1,7 +1,7 @@
 import type { CorsOptionsDelegate } from 'cors';
 import type { Request } from 'express';
 
-import config from './config';
+import config from '../config';
 import cors from 'cors';
 
 const corsOptions: CorsOptionsDelegate<Request> = (
