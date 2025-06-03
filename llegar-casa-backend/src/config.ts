@@ -14,6 +14,10 @@ const config: Config = {
 			baseURL: process.env.COMPLAINTS_BASE_URL ?? 'http://localhost:8000',
 			timeout: parseInt(process.env.COMPLAINTS_TIMEOUT ?? '20000'),
 		},
+		vehicles: {
+			baseURL: process.env.VEHICLES_BASE_URL ?? 'http://localhost:6000',
+			timeout: parseInt(process.env.VEHICLES_TIMEOUT ?? '20000'),
+		},
 	},
 };
 

@@ -5,11 +5,14 @@ export interface AppConfig {
 	env: Environment;
 }
 
+export interface ServiceParams {
+	baseURL: string;
+	timeout: number;
+}
+
 export interface ServicesConfig {
-	complaints: {
-		baseURL: string;
-		timeout: number;
-	};
+	complaints: ServiceParams;
+	vehicles: ServiceParams;
 }
 
 export interface Config {

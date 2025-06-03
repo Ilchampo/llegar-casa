@@ -6,6 +6,6 @@ const router = Router();
 
 const complaintsController = new ComplaintsController();
 
-router.get('/complaints', (req, res) => complaintsController.getComplaints(req, res));
+router.get('/', (req, res) => complaintsController.getComplaints(req, res));
 
 export default router;
