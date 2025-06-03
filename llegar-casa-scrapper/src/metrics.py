@@ -242,6 +242,9 @@ class MetricsCollector:
     def register_histogram(self, name: str, description: str = "", buckets: List[float] = None) -> Histogram:
         """Register a new histogram metric."""
         with self._lock:
+            if buckets is None:
+                buckets = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
+
             if name not in self.histograms:
                 self.histograms[name] = Histogram(name, description, buckets)
             return self.histograms[name]
