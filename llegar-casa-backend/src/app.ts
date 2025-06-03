@@ -1,13 +1,17 @@
 import express from 'express';
+import cors from 'cors';
 
 import complaintsRoutes from './routes/complaints.routes';
 import vehiclesRoutes from './routes/vehicles.routes';
+import corsOptions from './cors';
 
 import config from './config';
 
 const app = express();
 
 app.set('port', config.app.port);
+
+app.use(cors(corsOptions));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

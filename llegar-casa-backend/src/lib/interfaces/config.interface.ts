@@ -3,6 +3,7 @@ export type Environment = 'development' | 'production' | 'staging';
 export interface AppConfig {
 	port: number;
 	env: Environment;
+	corsOrigin: string | string[];
 }
 
 export interface ServiceParams {

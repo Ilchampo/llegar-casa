@@ -4,10 +4,21 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const parseCorsOrigin = (corsOrigin?: string): string | string[] | undefined => {
+	if (!corsOrigin) {
+		return undefined;
+	}
+
+	const origins = corsOrigin.split(',').map((origin) => origin.trim());
+
+	return origins.length === 1 ? origins[0] : origins;
+};
+
 const config: Config = {
 	app: {
 		port: parseInt(process.env.PORT ?? '3000'),
 		env: (process.env.NODE_ENV as Environment) ?? 'development',
+		corsOrigin: parseCorsOrigin(process.env.CORS_ORIGIN_WHITELIST) ?? 'http://localhost:5173',
 	},
 	services: {
 		complaints: {
