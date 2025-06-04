@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request, status
 from .schemas import ComplaintSearchResponse, ScraperHealthResponse
 from .service import ScraperService
 from .exceptions import ScraperException, PlateNotFound, ScrapingTimeout, IncapsulaBlockedException
-from .dependencies import check_rate_limit, ServiceHealth
+from .dependencies import check_rate_limit, validate_license_plate, ServiceHealth
 from ..logging_config import get_logger, RequestLogger
 
 router = APIRouter()
@@ -20,39 +20,54 @@ logger = get_logger(__name__)
 @router.get("/complaints", response_model=ComplaintSearchResponse)
 async def search_complaints(
     request: Request,
-    license_plate: str,
-    driver_name: str,
+    license_plate: Annotated[str, Depends(validate_license_plate)],
 ):
     """
-    Search for crime complaints by license plate and check for driver name matches.
+    Search for crime complaints by license plate.
     
     This endpoint searches the SIAF database for crime reports associated with
-    the given license plate and checks if the provided driver name matches any
-    processed persons in the results.
+    the given license plate and returns the crime data if found.
     
-    **Rate Limiting:** Maximum 10 requests per 5 minutes per IP address.
+    **Rate Limiting:** Maximum 20 requests per 5 minutes per IP address.
     
     **Response Examples:**
     
-    **Success with match found:**
+    **Success with results found:**
     ```json
     {
+        "searched_plate": "ABC1234",
+        "search_successful": true,
         "crime_report_number": "100301816010030",
         "lugar": "IMBABURA - COTACACHI", 
         "fecha": "2016-01-27",
         "delito": "RECEPTACIÓN(3575)",
-        "procesados": ["TUQUEREZ JOSE FAUSTO", "SANCHEZ ALDAZ JOSE ANTONIO"],
-        "name_match_found": true,
-        "search_successful": true
+        "error_message": null
     }
     ```
     
     **No results found:**
     ```json
     {
+        "searched_plate": "ABC1234",
         "search_successful": true,
-        "name_match_found": false,
+        "crime_report_number": null,
+        "lugar": null,
+        "fecha": null,
+        "delito": null,
         "error_message": "No results found for license plate: ABC1234"
+    }
+    ```
+    
+    **Search failed (e.g., website down):**
+    ```json
+    {
+        "searched_plate": "ABC1234",
+        "search_successful": false,
+        "crime_report_number": null,
+        "lugar": null,
+        "fecha": null,
+        "delito": null,
+        "error_message": "Service temporarily unavailable due to anti-bot protection"
     }
     ```
     """
@@ -63,7 +78,6 @@ async def search_complaints(
         "scraper_search", 
         request_id=request_id,
         license_plate=license_plate,
-        driver_name=driver_name,
         client_ip=client_ip
     ) as req_logger:
         
@@ -73,18 +87,14 @@ async def search_complaints(
             req_logger.log("Starting complaint search", "info")
             
             from .schemas import ComplaintSearchRequest
-            search_request = ComplaintSearchRequest(
-                license_plate=license_plate,
-                driver_name=driver_name
-            )
+            search_request = ComplaintSearchRequest(license_plate=license_plate)
             
             result = await scraper_service.search_by_license_plate(search_request)
             
             req_logger.log(
                 "Search completed successfully", 
                 "info",
-                name_match_found=result.name_match_found,
-                procesados_count=len(result.procesados)
+                found_results=result.crime_report_number is not None
             )
             
             return result
@@ -93,44 +103,65 @@ async def search_complaints(
             req_logger.log(f"No results found: {str(e)}", "info")
             
             return ComplaintSearchResponse(
-                search_successful=True,
-                name_match_found=False,
                 searched_plate=license_plate,
-                searched_driver=driver_name,
+                search_successful=True,
+                crime_report_number=None,
+                lugar=None,
+                fecha=None,
+                delito=None,
                 error_message=str(e)
             )
             
         except IncapsulaBlockedException as e:
             req_logger.log(f"Incapsula blocking detected: {str(e)}", "warning")
             
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service temporarily unavailable due to anti-bot protection. Please try again later.",
-                headers={"Retry-After": "60"}
+            return ComplaintSearchResponse(
+                searched_plate=license_plate,
+                search_successful=False,
+                crime_report_number=None,
+                lugar=None,
+                fecha=None,
+                delito=None,
+                error_message="Service temporarily unavailable due to anti-bot protection. Please try again later."
             )
             
         except ScrapingTimeout as e:
             req_logger.log(f"Search timeout: {str(e)}", "warning")
             
-            raise HTTPException(
-                status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-                detail="Search operation timed out. The target website may be slow or unavailable."
+            return ComplaintSearchResponse(
+                searched_plate=license_plate,
+                search_successful=False,
+                crime_report_number=None,
+                lugar=None,
+                fecha=None,
+                delito=None,
+                error_message="Search operation timed out. The target website may be slow or unavailable."
             )
             
         except ScraperException as e:
             req_logger.log(f"Scraper error: {str(e)}", "error")
             
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal scraping error occurred. Please try again later."
+            return ComplaintSearchResponse(
+                searched_plate=license_plate,
+                search_successful=False,
+                crime_report_number=None,
+                lugar=None,
+                fecha=None,
+                delito=None,
+                error_message="Internal scraping error occurred. Please try again later."
             )
             
         except Exception as e:
             req_logger.log(f"Unexpected error: {str(e)}", "error")
             
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="An unexpected error occurred. Please try again later."
+            return ComplaintSearchResponse(
+                searched_plate=license_plate,
+                search_successful=False,
+                crime_report_number=None,
+                lugar=None,
+                fecha=None,
+                delito=None,
+                error_message="An unexpected error occurred. Please try again later."
             )
 
 

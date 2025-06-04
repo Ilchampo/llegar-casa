@@ -17,7 +17,7 @@ class RateLimiter:
     def __init__(self):
         self.requests = {}
         self.window_minutes = 5
-        self.max_requests = 10
+        self.max_requests = 20
     
     def is_allowed(self, client_ip: str) -> bool:
         """Check if request is allowed based on rate limiting."""
@@ -85,46 +85,6 @@ async def validate_license_plate(
         )
 
 
-async def validate_driver_name(
-    driver_name: Annotated[str, Query(
-        description="Driver name to match against processed persons",
-        min_length=2,
-        max_length=100,
-        example="TUQUEREZ JOSE FAUSTO"
-    )]
-) -> str:
-    """
-    Validate and normalize driver name.
-    
-    Raises:
-        HTTPException: If driver name is invalid
-    """
-    try:
-        cleaned_name = " ".join(driver_name.split()).upper()
-        
-        if not re.match(r'^[A-ZÁÉÍÓÚÑÜ\s\-\.]+$', cleaned_name):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Driver name contains invalid characters. Only letters, spaces, hyphens, and periods allowed."
-            )
-        
-        if len(cleaned_name.replace(" ", "")) < 2:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Driver name too short. Must be at least 2 characters."
-            )
-        
-        return cleaned_name
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Driver name validation error: {str(e)}"
-        )
-
-
 async def check_rate_limit(request) -> None:
     """
     Check if request is within rate limits.
@@ -138,7 +98,7 @@ async def check_rate_limit(request) -> None:
         if not rate_limiter.is_allowed(client_ip):
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Rate limit exceeded. Maximum 10 requests per 5 minutes allowed.",
+                detail="Rate limit exceeded. Maximum 20 requests per 5 minutes allowed.",
                 headers={"Retry-After": "300"}
             )
             
@@ -146,22 +106,6 @@ async def check_rate_limit(request) -> None:
         raise
     except Exception as e:
         pass
-
-
-async def validate_search_request(
-    plate: Annotated[str, Depends(validate_license_plate)],
-    driver: Annotated[str, Depends(validate_driver_name)]
-) -> dict:
-    """
-    Combined validation for search request parameters.
-    
-    Returns:
-        dict: Validated and normalized request parameters
-    """
-    return {
-        "license_plate": plate,
-        "driver_name": driver
-    }
 
 
 async def validate_api_key(
@@ -202,6 +146,6 @@ class ServiceHealth:
             return {
                 "scraper_available": False,
                 "playwright_available": False,
-                "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
+                "error": str(e)
             }

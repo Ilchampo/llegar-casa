@@ -1,7 +1,7 @@
 """Scraper module Pydantic schemas."""
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -14,12 +14,6 @@ class ComplaintSearchRequest(BaseModel):
         max_length=7,
         description="Vehicle license plate to search for"
     )
-    driver_name: str = Field(
-        ..., 
-        min_length=2, 
-        max_length=100,
-        description="Driver name to match against processed persons"
-    )
     
     @field_validator('license_plate')
     @classmethod
@@ -28,59 +22,44 @@ class ComplaintSearchRequest(BaseModel):
         if not v.replace(" ", "").isalnum():
             raise ValueError("License plate must contain only letters and numbers")
         return v.upper().replace(" ", "")
-    
-    @field_validator('driver_name')
-    @classmethod
-    def validate_driver_name(cls, v):
-        """Validate and normalize driver name."""
-        return " ".join(v.split()).upper()
 
 
 class ComplaintSearchResponse(BaseModel):
-    """Response model for complaint search results."""
+    """Response model for complaint search results matching backend interface."""
+    
+    searched_plate: str = Field(
+        ...,
+        description="The license plate that was searched"
+    )
+    
+    search_successful: bool = Field(
+        ...,
+        description="Whether the search operation was completed successfully"
+    )
     
     crime_report_number: Optional[str] = Field(
         None, 
         description="Crime report number (Noticia del Delito)"
     )
+    
     lugar: Optional[str] = Field(
         None, 
         description="Location where the crime occurred"
     )
+    
     fecha: Optional[str] = Field(
         None, 
         description="Date when the crime occurred"
     )
+    
     delito: Optional[str] = Field(
         None, 
         description="Type of crime/offense"
     )
     
-    procesados: List[str] = Field(
-        default_factory=list,
-        description="List of processed persons' full names"
-    )
-    
-    name_match_found: bool = Field(
-        False,
-        description="Whether the driver name matches any processed person"
-    )
-    
-    search_successful: bool = Field(
-        True,
-        description="Whether the search was completed successfully"
-    )
     error_message: Optional[str] = Field(
         None,
-        description="Error message if search failed"
-    )
-    searched_plate: str = Field(
-        ...,
-        description="The license plate that was searched"
-    )
-    searched_driver: str = Field(
-        ...,
-        description="The driver name that was searched"
+        description="Error message if search failed or no results found"
     )
 
 

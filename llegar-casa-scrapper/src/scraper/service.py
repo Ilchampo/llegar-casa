@@ -5,7 +5,7 @@ import random
 import re
 import time
 from datetime import datetime
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, Any
 from urllib.parse import quote
 
 from playwright.async_api import async_playwright, Browser, Page, TimeoutError as PlaywrightTimeoutError
@@ -89,10 +89,7 @@ class ScraperService:
         try:
             self.logger.info(
                 "Starting license plate search",
-                extra={
-                    "license_plate": request.license_plate,
-                    "driver_name": request.driver_name
-                }
+                extra={"license_plate": request.license_plate}
             )
             
             inc_searches(labels={"license_plate": request.license_plate})
@@ -106,16 +103,11 @@ class ScraperService:
             duration = time.time() - start_time
             observe_search_duration(duration)
             
-            if result.name_match_found:
-                metrics.get_counter("name_matches_found").inc()
-            
             self.logger.info(
                 "License plate search completed successfully",
                 extra={
                     "license_plate": request.license_plate,
-                    "driver_name": request.driver_name,
-                    "name_match_found": result.name_match_found,
-                    "procesados_count": len(result.procesados),
+                    "found_results": result.crime_report_number is not None,
                     "duration_seconds": round(duration, 2),
                     "crime_report_number": result.crime_report_number
                 }
@@ -189,21 +181,14 @@ class ScraperService:
         
         extracted_data = await self._extract_data(search_results)
         
-        name_match = self._check_name_match(
-            request.driver_name, 
-            extracted_data.get("procesados", [])
-        )
-        
         return ComplaintSearchResponse(
+            searched_plate=request.license_plate,
+            search_successful=True,
             crime_report_number=extracted_data.get("crime_report_number"),
             lugar=extracted_data.get("lugar"),
             fecha=extracted_data.get("fecha"),
             delito=extracted_data.get("delito"),
-            procesados=extracted_data.get("procesados", []),
-            name_match_found=name_match,
-            search_successful=True,
-            searched_plate=request.license_plate,
-            searched_driver=request.driver_name
+            error_message=None
         )
     
     async def health_check(self) -> ScraperHealthResponse:
@@ -474,8 +459,7 @@ class ScraperService:
                 "crime_report_number": None,
                 "lugar": None,
                 "fecha": None,
-                "delito": None,
-                "procesados": []
+                "delito": None
             }
             
             crime_number_match = re.search(r'NOTICIA DEL DELITO Nro\. ([\d]+)', html_content)
@@ -518,8 +502,6 @@ class ScraperService:
                     data["delito"] = delito_match.group(1).strip()
                     break
             
-            data["procesados"] = self._extract_procesados(html_content)
-            
             if scraper_settings.DEBUG_MODE:
                 print(f"Extracted data: {data}")
             
@@ -528,61 +510,7 @@ class ScraperService:
         except Exception as e:
             raise DataExtractionException(f"{ErrorMessages.EXTRACTION_FAILED}: {str(e)}")
     
-    def _extract_procesados(self, html_content: str) -> List[str]:
-        """
-        Extract the list of processed persons from SUJETOS table.
-        """
-        procesados = []
-        
-        try:
-            sujetos_start = html_content.find('SUJETOS')
-            if sujetos_start == -1:
-                return procesados
-            
-            sujetos_section = html_content[sujetos_start:]
-            
-            row_pattern = r'<tr>\s*<td[^>]*>([^<]*)</td>\s*<td[^>]*>([^<]*)</td>\s*<td[^>]*>([^<]*)</td>\s*</tr>'
-            
-            matches = re.findall(row_pattern, sujetos_section, re.IGNORECASE | re.DOTALL)
-            
-            for match in matches:
-                cedula, nombre, estado = [field.strip() for field in match]
-                
-                if estado.upper() == ProcessingStatus.PROCESADO:
-                    clean_name = " ".join(nombre.split())
-                    if clean_name and clean_name != "NOMBRES COMPLETOS":
-                        procesados.append(clean_name)
-            
-            return procesados
-            
-        except Exception as e:
-            print(f"Error extracting procesados: {str(e)}")
-            return procesados
-    
-    def _check_name_match(self, driver_name: str, procesados: List[str]) -> bool:
-        """
-        Check if the driver name matches any of the processed persons.
-        """
-        if not driver_name or not procesados:
-            return False
-        
-        normalized_driver = driver_name.upper().strip()
-        
-        for procesado in procesados:
-            normalized_procesado = procesado.upper().strip()
-            
-            if normalized_driver == normalized_procesado:
-                return True
-            
-            if normalized_driver in normalized_procesado:
-                return True
-            
-            if normalized_procesado in normalized_driver:
-                return True
-        
-        return False
-    
-    def _serialize_php_array(self, items: List[str]) -> str:
+    def _serialize_php_array(self, items: list[str]) -> str:
         """
         Create PHP serialized array format as expected by the SIAF system.
         Format: a:1:{i:0;s:7:"PCJ8619";}
