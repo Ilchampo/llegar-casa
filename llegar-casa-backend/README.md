@@ -48,12 +48,14 @@ This backend follows enterprise-grade patterns and best practices for API develo
 ## Features
 
 ### Core Functionality
+
 - Vehicle information retrieval from Ecuador's vehicle registry
 - Complaint records search and data aggregation
 - Real-time data fetching with external API integration
 - HTML parsing and data transformation capabilities
 
 ### Production Features
+
 - **Rate Limiting**: Multi-tier request throttling (general API, data fetching, basic endpoints)
 - **Intelligent Caching**: In-memory cache with automatic TTL expiration
 - **Error Handling**: Centralized error management with standardized responses
@@ -85,26 +87,29 @@ This backend follows enterprise-grade patterns and best practices for API develo
 ### Setup
 
 1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/Ilchampo/llegar-casa.git
-   cd llegar-casa/llegar-casa-backend
-   ```
+
+    ```bash
+    git clone https://github.com/Ilchampo/llegar-casa.git
+    cd llegar-casa/llegar-casa-backend
+    ```
 
 2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 3. **Environment configuration**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+
+    ```bash
+    cp .env.example .env
+    # Edit .env with your configuration
+    ```
 
 4. **Build the application**:
-   ```bash
-   npm run build
-   ```
+    ```bash
+    npm run build
+    ```
 
 ## Configuration
 
@@ -132,13 +137,13 @@ VEHICLES_TIMEOUT=20000
 
 ### Configuration Options
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `3000` | Server port number |
-| `NODE_ENV` | `development` | Environment (development/production) |
-| `CORS_ORIGIN_WHITELIST` | `http://localhost:5173` | Allowed CORS origins |
-| `COMPLAINTS_BASE_URL` | `http://localhost:8000` | Complaints service endpoint |
-| `VEHICLES_BASE_URL` | `http://localhost:6000` | Vehicles service endpoint |
+| Variable                | Default                 | Description                          |
+| ----------------------- | ----------------------- | ------------------------------------ |
+| `PORT`                  | `3000`                  | Server port number                   |
+| `NODE_ENV`              | `development`           | Environment (development/production) |
+| `CORS_ORIGIN_WHITELIST` | `http://localhost:5173` | Allowed CORS origins                 |
+| `COMPLAINTS_BASE_URL`   | `http://localhost:8000` | Complaints service endpoint          |
+| `VEHICLES_BASE_URL`     | `http://localhost:6000` | Vehicles service endpoint            |
 
 ## Running the Application
 
@@ -171,6 +176,7 @@ npm start
 ## API Documentation
 
 ### Base URL
+
 ```
 Development: http://localhost:3000
 Production: http://localhost:3000
@@ -179,68 +185,76 @@ Production: http://localhost:3000
 ### Endpoints
 
 #### Health Check
+
 ```http
 GET /health
 ```
 
 **Response:**
+
 ```json
 {
-  "message": "Service is healthy",
-  "status": 200,
-  "data": {
-    "environment": "development",
-    "timestamp": "2024-01-01T00:00:00.000Z",
-    "uptime": 3600.5,
-    "cache": {
-      "size": 10
-    }
-  }
+	"message": "Service is healthy",
+	"status": 200,
+	"data": {
+		"environment": "development",
+		"timestamp": "2024-01-01T00:00:00.000Z",
+		"uptime": 3600.5,
+		"cache": {
+			"size": 10
+		}
+	}
 }
 ```
 
 #### Vehicle Information
+
 ```http
 GET /api/vehicles?licensePlate=ABC-1234
 ```
 
 **Parameters:**
+
 - `licensePlate` (string, required): Vehicle license plate
 
 **Response:**
+
 ```json
 {
-  "message": "Vehicle retrieved successfully",
-  "status": 200,
-  "data": {
-    "licensePlate": "ABC-1234",
-    "brand": "Toyota",
-    "model": "Corolla",
-    "year": 2020,
-    "color": "White",
-    "stolen": false
-  }
+	"message": "Vehicle retrieved successfully",
+	"status": 200,
+	"data": {
+		"licensePlate": "ABC-1234",
+		"brand": "Toyota",
+		"model": "Corolla",
+		"year": 2020,
+		"color": "White",
+		"stolen": false
+	}
 }
 ```
 
 #### Complaint Records
+
 ```http
 GET /api/complaints?licensePlate=ABC-1234
 ```
 
 **Parameters:**
+
 - `licensePlate` (string, required): License plate to search for
 
 **Response:**
+
 ```json
 {
-  "message": "Complaints retrieved successfully",
-  "status": 200,
-  "data": {
-    "location": "Quito",
-    "date": "2024-01-01",
-    "offense": "Traffic violation"
-  }
+	"message": "Complaints retrieved successfully",
+	"status": 200,
+	"data": {
+		"location": "Quito",
+		"date": "2024-01-01",
+		"offense": "Traffic violation"
+	}
 }
 ```
 
@@ -250,20 +264,22 @@ All endpoints return standardized error responses:
 
 ```json
 {
-  "message": "Error description",
-  "status": 400,
-  "error": "Detailed error message"
+	"message": "Error description",
+	"status": 400,
+	"error": "Detailed error message"
 }
 ```
 
 ## Security Features
 
 ### CORS Configuration
+
 - Environment-based origin whitelisting
 - Configurable credentials and methods
 - Production-ready security settings
 
 ### Security Headers (Helmet.js)
+
 - `X-Content-Type-Options: nosniff`
 - `X-Frame-Options: DENY`
 - `X-XSS-Protection: 1; mode=block`
@@ -271,6 +287,7 @@ All endpoints return standardized error responses:
 - `Strict-Transport-Security` (production only)
 
 ### Rate Limiting
+
 - **General API**: 100 requests per 15 minutes (production)
 - **Data Fetching**: 30 requests per 15 minutes (production)
 - **Basic Endpoints**: 60 requests per minute
@@ -279,15 +296,17 @@ All endpoints return standardized error responses:
 ## Performance Optimizations
 
 ### Caching Strategy
+
 - **In-Memory Cache**: Simple Map-based caching system
 - **TTL Management**: Automatic expiration with cleanup
 - **Cache Statistics**: Monitoring and health reporting
 - **Cache Levels**:
-  - Vehicle data: 1 hour TTL
-  - Complaint data: 15 minutes TTL
-  - Health data: 5 minutes TTL
+    - Vehicle data: 1 hour TTL
+    - Complaint data: 15 minutes TTL
+    - Health data: 5 minutes TTL
 
 ### Response Optimization
+
 - Standardized response format
 - Efficient error handling
 - Automatic cache hit/miss management
@@ -295,22 +314,26 @@ All endpoints return standardized error responses:
 ## Production Considerations
 
 ### Performance
+
 - Lightweight in-memory caching
 - Efficient external API handling
 - Optimized middleware pipeline
 
 ### Monitoring
+
 - Health check endpoints
 - Cache performance metrics
 - Request rate monitoring
 
 ### Security
+
 - Environment-based configuration
 - Rate limiting protection
 - Security headers enforcement
 - CORS origin validation
 
 ### Scalability
+
 - Stateless design
 - External service abstraction
 - Configurable timeouts and retries
@@ -318,6 +341,7 @@ All endpoints return standardized error responses:
 ## Development
 
 ### Code Quality
+
 ```bash
 # Run all checks
 npm run lint && npm run type-check && npm run format:check
@@ -327,10 +351,12 @@ npm run lint:fix && npm run format
 ```
 
 ### Git Hooks
+
 - Pre-commit: Linting and formatting checks
 - Husky integration for automated quality checks
 
 ### Project Standards
+
 - TypeScript strict mode
 - ESLint with recommended rules
 - Prettier for code formatting

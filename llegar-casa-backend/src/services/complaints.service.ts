@@ -29,6 +29,10 @@ export class ComplaintsService {
 				},
 			});
 
+			if (!response.data.search_successful) {
+				throw new Error(response.data.error_message ?? 'Scrapper service temporarily unavailable');
+			}
+
 			const transformedData: ComplaintResponse = {
 				location: response.data.lugar,
 				date: response.data.fecha,

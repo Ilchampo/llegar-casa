@@ -98,7 +98,6 @@ export class ResponseHandler {
 
 			return this.handleApiResponse(apiResponse, successMessage);
 		} catch (error) {
-			console.error(error);
 			const errorMessage = error instanceof Error ? error.message : 'API request failed';
 
 			return this.error<T>(errorMessage, 503, 'Service unavailable');

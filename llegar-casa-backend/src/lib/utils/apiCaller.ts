@@ -5,7 +5,7 @@ import axios, { AxiosError } from 'axios';
 export class ApiCaller {
 	private readonly client: AxiosInstance;
 
-	constructor(baseURL: string, timeout: number = 10000) {
+	constructor(baseURL: string, timeout: number = 120000) {
 		this.client = axios.create({
 			baseURL,
 			headers: {
@@ -29,7 +29,14 @@ export class ApiCaller {
 			return response;
 		} catch (error) {
 			if (error instanceof AxiosError) {
-				throw new Error(error.response?.data.message);
+				const errorMessage =
+					error.response?.data?.error_message ||
+					error.response?.data?.message ||
+					error.response?.data?.detail ||
+					error.message ||
+					'Request failed';
+
+				throw new Error(errorMessage);
 			}
 			throw new Error(error instanceof Error ? error.message : 'An unknown error occurred');
 		}
